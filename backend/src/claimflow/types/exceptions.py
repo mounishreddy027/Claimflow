@@ -51,6 +51,9 @@ class AuditIntegrityError(Exception):
     """Raised when the hash chain or audit log entry fails integrity validation."""
 
 
+from collections.abc import Sequence
+
+
 class InvalidClaimStateException(Exception):
     """Raised when an illegal claim state transition is attempted."""
 
@@ -59,12 +62,12 @@ class InvalidClaimStateException(Exception):
         claim_id: str,
         current_state: object,
         attempted_target_state: object,
-        allowed_target_states: list[object],
+        allowed_target_states: Sequence[object],
     ) -> None:
         self.claim_id = claim_id
         self.current_state = current_state
         self.attempted_target_state = attempted_target_state
-        self.allowed_target_states = allowed_target_states
+        self.allowed_target_states = list(allowed_target_states)
         curr_val = getattr(current_state, "value", str(current_state))
         att_val = getattr(attempted_target_state, "value", str(attempted_target_state))
         allowed_vals = [getattr(s, "value", str(s)) for s in allowed_target_states]
