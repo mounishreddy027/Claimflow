@@ -31,6 +31,12 @@ class PolicyNotActiveException(Exception):
             f"Reason: {reason_code}"
         )
         super().__init__(message)
+
+
+class PolicyNotFoundError(Exception):
+    def __init__(self, policy_number: str) -> None:
+        self.policy_number = policy_number
+        super().__init__(f"Policy {policy_number} not found in policy registry")
 # === END E1-S1 ===
 
 
