@@ -2,9 +2,7 @@
 
 ## Instructions
 
-<!-- BRD INSTRUCTIONS PLACEHOLDER -->
-<!-- Replace this block with the Business Requirements Document (BRD) instructions for the current project. -->
-<!-- These instructions drive the autonomous /auto loop — be specific about features, acceptance criteria, and constraints. -->
+ClaimFlow Platform (BC-AINE-005): Automated insurance claims adjudication engine across Motor, Health, and Life lines. Enforces clean architecture (controllers -> services -> domain <- repositories), fixed-point math (Decimal scale 2, ROUND_HALF_EVEN), append-only ledger immutability (zero UPDATE/DELETE), zero PII in logs, and strict state machine lifecycle (FILED -> UNDER_REVIEW -> APPROVED/REJECTED -> SETTLED -> REOPENED).
 
 ## Constraints
 
@@ -52,21 +50,22 @@ When an automated check fails, apply the fix strategy from the table below befor
 
 | Phase | Name | Status | Notes |
 |-------|------|--------|-------|
-| 1 | BRD | pending | Business requirements not yet loaded |
-| 2 | Spec | pending | |
-| 3 | Design | pending | |
-| 4 | Implement | pending | |
-| 5 | Review | pending | |
-| 6 | Test | pending | |
-| 7 | Deploy | pending | |
-| 8 | Commit | pending | |
+| 1 | BRD | complete | specs/brd/brd.md approved |
+| 2 | Spec | complete | 4 Epics, 16 Stories, 58 features in specs/ |
+| 3 | Design | complete | System architecture & schemas in specs/design/ |
+| 4 | Implement | complete | Groups A, B, C, D complete; 58/58 features passing |
+| 5 | Review | complete | specs/reviews/ac-verification-report.md approved |
+| 6 | Test | complete | 115 tests passing, 100% statement coverage (973/973) |
+| 7 | Deploy | complete | FastAPI app assembled, health probe verified |
+| 8 | Commit | complete | Production baseline ratcheted |
 
 ## Current Focus
 
 ```
-iteration : 0
-status    : idle
-story     : (none)
-phase     : (none)
-coverage  : (none)
+iteration : 4
+status    : complete
+story     : all (E1-S1 through E4-S4)
+phase     : complete
+coverage  : 100% (973/973 statements)
 ```
+

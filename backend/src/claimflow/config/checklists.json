@@ -1,0 +1,26 @@
+{
+  "MOTOR": {
+    "required": [
+      "POLICE_FIR",
+      "REPAIR_INVOICE"
+    ],
+    "optional": [
+      "REPAIR_ESTIMATE"
+    ]
+  },
+  "HEALTH": {
+    "required": [
+      "HOSPITAL_BILL",
+      "DISCHARGE_SUMMARY"
+    ],
+    "optional": []
+  },
+  "LIFE": {
+    "required": [
+      "DEATH_CERTIFICATE"
+    ],
+    "optional": [
+      "AUTOPSY_REPORT"
+    ]
+  }
+}

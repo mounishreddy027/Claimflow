@@ -1,0 +1,688 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ClaimFlow Data Models Schema",
+  "description": "Complete JSON Schema for all ClaimFlow data entities",
+  "type": "object",
+  "definitions": {
+    "Claim": {
+      "type": "object",
+      "required": ["claim_id", "policy_id", "customer_id", "claim_type", "line_of_business", "claim_state", "incident_date", "incident_description", "created_at", "updated_at", "policy_rule_version_id"],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique claim identifier"
+        },
+        "policy_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Associated policy"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Claimant customer ID"
+        },
+        "claim_type": {
+          "type": "string",
+          "enum": ["MOTOR", "HEALTH", "LIFE"],
+          "description": "Claim classification"
+        },
+        "line_of_business": {
+          "type": "string",
+          "enum": ["MOTOR", "HEALTH", "LIFE"],
+          "description": "Derived from claim_type"
+        },
+        "claim_state": {
+          "type": "string",
+          "enum": ["FILED", "UNDER_REVIEW", "APPROVED", "REJECTED", "SETTLED", "CLOSED"],
+          "description": "Current state in lifecycle"
+        },
+        "status_flag": {
+          "type": "string",
+          "enum": ["NORMAL", "REOPENED"],
+          "default": "NORMAL",
+          "description": "Secondary status for reopened claims"
+        },
+        "incident_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When incident occurred (UTC)"
+        },
+        "incident_description": {
+          "type": "string",
+          "description": "Details of incident"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Claim filing timestamp (UTC, immutable)"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last state transition (UTC)"
+        },
+        "policy_rule_version_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Fraud rule version pinned at intake"
+        },
+        "reason_code": {
+          "type": ["string", "null"],
+          "description": "Reason for current state"
+        }
+      }
+    },
+    "Policy": {
+      "type": "object",
+      "required": ["policy_id", "policy_number", "customer_id", "line_of_business", "effective_date", "sum_insured", "premium_amount", "deductible", "co_pay_percent", "created_at", "updated_at"],
+      "properties": {
+        "policy_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique policy identifier"
+        },
+        "policy_number": {
+          "type": "string",
+          "description": "Human-readable policy number"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Policy holder"
+        },
+        "line_of_business": {
+          "type": "string",
+          "enum": ["MOTOR", "HEALTH", "LIFE"],
+          "description": "Coverage type"
+        },
+        "effective_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Policy inception date"
+        },
+        "expiry_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Policy expiration (null = lifetime)"
+        },
+        "sum_insured": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum covered amount (2 decimal places)"
+        },
+        "premium_amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Annual/term premium (2 decimal places)"
+        },
+        "deductible": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Deductible per claim (2 decimal places)"
+        },
+        "co_pay_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Co-pay percentage"
+        },
+        "coverage_exclusions": {
+          "type": "object",
+          "description": "Excluded incident types"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Policy creation (UTC)"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification (UTC)"
+        }
+      }
+    },
+    "Document": {
+      "type": "object",
+      "required": ["document_id", "claim_id", "document_type", "file_name", "file_url", "file_size_bytes", "file_hash", "uploaded_at", "verification_status"],
+      "properties": {
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique document identifier"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Associated claim"
+        },
+        "document_type": {
+          "type": "string",
+          "enum": ["POLICE_FIR", "REPAIR_INVOICE", "HOSPITAL_BILL", "DISCHARGE_SUMMARY", "DEATH_CERTIFICATE"],
+          "description": "Document classification"
+        },
+        "file_name": {
+          "type": "string",
+          "description": "Original file name"
+        },
+        "file_url": {
+          "type": "string",
+          "description": "Storage path/URL (immutable)"
+        },
+        "file_size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Document size in bytes"
+        },
+        "file_hash": {
+          "type": "string",
+          "description": "SHA-256 hash for integrity"
+        },
+        "uploaded_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Upload timestamp (UTC, immutable)"
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Verification status"
+        },
+        "verified_by_adjuster_id": {
+          "type": ["string", "null"],
+          "format": "uuid",
+          "description": "Adjuster who verified"
+        },
+        "verified_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Verification timestamp (UTC, immutable if set)"
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED"],
+          "default": "PENDING_VERIFICATION",
+          "description": "Verification decision"
+        },
+        "verification_reason_code": {
+          "type": ["string", "null"],
+          "enum": ["ACCEPTABLE", "UNREADABLE", "INVALID_FORMAT"],
+          "description": "Reason for rejection"
+        }
+      }
+    },
+    "Assessment": {
+      "type": "object",
+      "required": ["assessment_id", "claim_id", "assessed_amount", "payable_amount", "deductible_applied", "co_pay_applied", "decision", "reason_code", "assessed_by_adjuster_id", "assessed_at", "coverage_status"],
+      "properties": {
+        "assessment_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique assessment identifier"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Associated claim (one per claim, immutable)"
+        },
+        "assessed_amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Amount approved for coverage (2 decimal places)"
+        },
+        "payable_amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Final payable after deductions (2 decimal places)"
+        },
+        "deductible_applied": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Deductible deducted (2 decimal places)"
+        },
+        "co_pay_applied": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Co-pay deducted (2 decimal places)"
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["AUTO_APPROVE", "MANUAL_REVIEW", "REJECT"],
+          "description": "Assessment decision (immutable)"
+        },
+        "reason_code": {
+          "type": "string",
+          "description": "Decision rationale (immutable)"
+        },
+        "assessed_by_adjuster_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Adjuster who assessed (immutable)"
+        },
+        "assessed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Assessment timestamp (UTC, immutable)"
+        },
+        "coverage_status": {
+          "type": "string",
+          "enum": ["FULL_COVERAGE", "PARTIAL_COVERAGE", "NO_COVERAGE"],
+          "description": "Coverage determination (immutable)"
+        },
+        "coverage_reason_code": {
+          "type": ["string", "null"],
+          "description": "Reason for coverage status"
+        }
+      }
+    },
+    "FraudScreeningResult": {
+      "type": "object",
+      "required": ["fraud_result_id", "claim_id", "rule_version_id", "fraud_score", "fraud_rules_triggered", "is_flagged", "evaluated_at"],
+      "properties": {
+        "fraud_result_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique result identifier"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Associated claim"
+        },
+        "rule_version_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Fraud rules used"
+        },
+        "fraud_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraud probability score (0-1, immutable)"
+        },
+        "fraud_rules_triggered": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of triggered rule names (immutable)"
+        },
+        "is_flagged": {
+          "type": "boolean",
+          "description": "true if score >= threshold (immutable)"
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Evaluation timestamp (UTC, immutable)"
+        },
+        "evaluated_by_system": {
+          "type": "boolean",
+          "default": true,
+          "description": "true if automated evaluation"
+        }
+      }
+    },
+    "Settlement": {
+      "type": "object",
+      "required": ["settlement_id", "claim_id", "payout_amount", "payout_state", "approved_by_admin_id", "approved_at"],
+      "properties": {
+        "settlement_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique settlement identifier"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Associated claim (immutable, WORM)"
+        },
+        "payout_amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Disbursed amount (2 decimal places, immutable)"
+        },
+        "payout_state": {
+          "type": "string",
+          "enum": ["PENDING_DISBURSEMENT", "DISBURSED", "FAILED_RETRY"],
+          "default": "PENDING_DISBURSEMENT",
+          "description": "Payout status"
+        },
+        "approved_by_admin_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Admin who approved (immutable)"
+        },
+        "approved_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Approval timestamp (UTC, immutable, WORM)"
+        },
+        "disbursed_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Payout completion timestamp (UTC, immutable once set)"
+        },
+        "rejection_reason_code": {
+          "type": ["string", "null"],
+          "description": "Reason if payout_state = FAILED_RETRY"
+        }
+      }
+    },
+    "SubClaim": {
+      "type": "object",
+      "required": ["sub_claim_id", "parent_claim_id", "related_claim_id", "sub_claim_type", "reason", "created_by_customer_id", "created_at"],
+      "properties": {
+        "sub_claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique sub-claim identifier"
+        },
+        "parent_claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Original settled claim (immutable)"
+        },
+        "related_claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Linked child claim (new FILED claim, immutable)"
+        },
+        "sub_claim_type": {
+          "type": "string",
+          "enum": ["DISPUTE", "REOPEN"],
+          "description": "Dispute or reopen type (immutable)"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Claimant reason for dispute (immutable)"
+        },
+        "created_by_customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Customer who filed dispute (immutable)"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Dispute filing timestamp (UTC, immutable)"
+        }
+      }
+    },
+    "OverrideAuditLog": {
+      "type": "object",
+      "required": ["override_id", "claim_id", "override_type", "previous_state", "new_state", "reason_code", "justification_comment", "actor_id", "actor_email", "override_at"],
+      "properties": {
+        "override_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique override identifier"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Overridden claim (immutable, unique per claim)"
+        },
+        "override_type": {
+          "type": "string",
+          "enum": ["APPROVE_REJECTED", "REJECT_APPROVED"],
+          "description": "Type of override (immutable)"
+        },
+        "previous_state": {
+          "type": "string",
+          "enum": ["APPROVED", "REJECTED"],
+          "description": "State before override (immutable)"
+        },
+        "new_state": {
+          "type": "string",
+          "enum": ["APPROVED", "REJECTED"],
+          "description": "State after override (immutable)"
+        },
+        "reason_code": {
+          "type": "string",
+          "description": "Override justification (immutable)"
+        },
+        "justification_comment": {
+          "type": "string",
+          "description": "Free-text explanation (immutable)"
+        },
+        "actor_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Admin who overrode (immutable)"
+        },
+        "actor_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Admin email for audit trail (immutable)"
+        },
+        "override_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Override timestamp (UTC, immutable)"
+        }
+      }
+    },
+    "AuditLog": {
+      "type": "object",
+      "required": ["audit_id", "correlation_id", "timestamp", "actor_id", "actor_role", "operation_type", "claim_id"],
+      "properties": {
+        "audit_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique audit entry identifier"
+        },
+        "correlation_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "End-to-end tracing ID (immutable)"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Operation timestamp (UTC, immutable)"
+        },
+        "actor_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "User who performed operation (immutable)"
+        },
+        "actor_role": {
+          "type": "string",
+          "enum": ["ROLE_CUSTOMER", "ROLE_ADJUSTER", "ROLE_ADMIN"],
+          "description": "User role (immutable)"
+        },
+        "operation_type": {
+          "type": "string",
+          "enum": ["CLAIM_CREATED", "STATE_TRANSITION", "DOCUMENT_UPLOADED", "DOCUMENT_VERIFIED", "FRAUD_EVALUATED", "ASSESSMENT_SUBMITTED", "SETTLEMENT_CONFIRMED", "OVERRIDE_APPLIED"],
+          "description": "Operation classification (immutable)"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Affected claim (immutable)"
+        },
+        "previous_state": {
+          "type": ["string", "null"],
+          "description": "State before operation (immutable)"
+        },
+        "new_state": {
+          "type": ["string", "null"],
+          "description": "State after operation (immutable)"
+        },
+        "reason_code": {
+          "type": ["string", "null"],
+          "description": "Operation reason (immutable)"
+        },
+        "detail_json": {
+          "type": "object",
+          "default": {},
+          "description": "Operation context with PII redacted (immutable)"
+        }
+      }
+    },
+    "FraudRuleVersion": {
+      "type": "object",
+      "required": ["rule_version_id", "version_number", "line_of_business", "is_active", "fraud_threshold", "rules", "created_at", "created_by_admin_id", "effective_date"],
+      "properties": {
+        "rule_version_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique rule version identifier"
+        },
+        "version_number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Version sequence number"
+        },
+        "line_of_business": {
+          "type": "string",
+          "enum": ["MOTOR", "HEALTH", "LIFE"],
+          "description": "LOB these rules apply to"
+        },
+        "is_active": {
+          "type": "boolean",
+          "default": true,
+          "description": "true if current active version"
+        },
+        "fraud_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Threshold score for flagging (0-1)"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rule_name", "operator", "threshold", "weight", "description"],
+            "properties": {
+              "rule_name": {
+                "type": "string"
+              },
+              "operator": {
+                "type": "string",
+                "enum": ["gt", "lt", "eq", "count_gt", "count_lt"]
+              },
+              "threshold": {
+                "type": "number"
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Array of rule definitions"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Version creation timestamp (UTC)"
+        },
+        "created_by_admin_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Admin who created version"
+        },
+        "effective_date": {
+          "type": "string",
+          "format": "date",
+          "description": "When rules became effective"
+        }
+      }
+    },
+    "DocumentChecklist": {
+      "type": "object",
+      "required": ["checklist_id", "line_of_business", "required_documents", "version", "created_at"],
+      "properties": {
+        "checklist_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique checklist identifier"
+        },
+        "line_of_business": {
+          "type": "string",
+          "enum": ["MOTOR", "HEALTH", "LIFE"],
+          "description": "LOB these documents apply to"
+        },
+        "required_documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["document_type", "required"],
+            "properties": {
+              "document_type": {
+                "type": "string",
+                "enum": ["POLICE_FIR", "REPAIR_INVOICE", "HOSPITAL_BILL", "DISCHARGE_SUMMARY", "DEATH_CERTIFICATE"]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Array of required document types"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Checklist version number"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Checklist creation timestamp (UTC)"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "required": ["user_id", "email", "full_name", "role", "is_active", "created_at"],
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique user identifier"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address (unique)"
+        },
+        "full_name": {
+          "type": "string",
+          "description": "User display name"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["ROLE_CUSTOMER", "ROLE_ADJUSTER", "ROLE_ADMIN"],
+          "description": "User role"
+        },
+        "is_active": {
+          "type": "boolean",
+          "default": true,
+          "description": "Account active status"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Account creation timestamp (UTC)"
+        },
+        "last_login_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Last login timestamp (UTC)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,317 @@
+{
+  "group": "A",
+  "phase": "Foundation Layer",
+  "stories": ["E1-S1", "E2-S1", "E3-S2", "E4-S1"],
+  "features_list": ["F001", "F002", "F003", "F004", "F005", "F018", "F019", "F020", "F021", "F022", "F048", "F049", "F050", "F051", "F052", "F061", "F062", "F063", "F064", "F065"],
+  "api_checks": [],
+  "playwright_checks": [],
+  "design_checks": [],
+  "architecture_checks": [
+    {
+      "file": "backend/src/claimflow/types/exceptions.py",
+      "requires": "PolicyNotActiveException class with policy_number, incident_date, policy_effective_date, policy_expiry_date, reason_code fields",
+      "story": "E1-S1",
+      "trace": "AC2, AC3, AC5: Error responses must include all dates and policy number"
+    },
+    {
+      "file": "backend/src/claimflow/types/enums.py",
+      "requires": "PolicyReasonCode enum with POLICY_EXPIRED and POLICY_NOT_EFFECTIVE values",
+      "story": "E1-S1",
+      "trace": "AC2, AC3: Reason codes in error responses"
+    },
+    {
+      "file": "backend/src/claimflow/services/policy_service.py",
+      "requires": "PolicyService class with validate_policy_active(policy: Policy, incident_date: datetime) -> bool method",
+      "story": "E1-S1",
+      "trace": "AC1, AC2, AC3, AC4, AC5: Core validation logic"
+    },
+    {
+      "file": "backend/src/claimflow/database/models.py",
+      "requires": "Policy model with effective_date and expiry_date fields (both datetime, nullable expiry_date)",
+      "story": "E1-S1",
+      "trace": "AC1, AC4: Policy date fields required"
+    },
+    {
+      "file": "backend/src/claimflow/config_loaders/document_checklist_loader.py",
+      "requires": "DocumentChecklistLoader class with load_checklists() method that returns dict[LineOfBusiness, List[DocumentType]]",
+      "story": "E2-S1",
+      "trace": "AC1, AC2, AC3: Checklist loading and caching"
+    },
+    {
+      "file": "backend/src/claimflow/database/seed_data/checklists.json",
+      "requires": "JSON file with Motor checklist [POLICE_FIR, REPAIR_INVOICE], Health checklist [HOSPITAL_BILL, DISCHARGE_SUMMARY], Life checklist [DEATH_CERTIFICATE]",
+      "story": "E2-S1",
+      "trace": "AC1: Checklist definitions per LOB"
+    },
+    {
+      "file": "backend/src/claimflow/types/enums.py",
+      "requires": "DocumentType enum with POLICE_FIR, REPAIR_INVOICE, HOSPITAL_BILL, DISCHARGE_SUMMARY, DEATH_CERTIFICATE values",
+      "story": "E2-S1",
+      "trace": "AC1, AC3: Document type enumerations"
+    },
+    {
+      "file": "backend/src/claimflow/database/models.py",
+      "requires": "DocumentChecklist model with lob, document_type, required boolean, description, version, effective_date fields",
+      "story": "E2-S1",
+      "trace": "AC4, AC5: Checklist metadata and versioning"
+    },
+    {
+      "file": "backend/src/claimflow/config_loaders/fraud_rules_loader.py",
+      "requires": "FraudRulesLoader class with load_rules() method returning dict[LineOfBusiness, FraudRuleSet]",
+      "story": "E3-S2",
+      "trace": "AC1, AC2, AC3: Fraud rule loading and caching"
+    },
+    {
+      "file": "backend/src/claimflow/database/seed_data/fraud_rules.json",
+      "requires": "JSON file with fraud rules per LOB (Motor, Health, Life) including rule_name, operator, threshold, weight, description",
+      "story": "E3-S2",
+      "trace": "AC1: Rule definitions with all required fields"
+    },
+    {
+      "file": "backend/src/claimflow/database/models.py",
+      "requires": "FraudRuleVersion model with version_number, effective_date, created_by_admin_id, is_active, lob, rules_json fields",
+      "story": "E3-S2",
+      "trace": "AC4, AC6: Versioning with immutable history"
+    },
+    {
+      "file": "backend/src/claimflow/types/exceptions.py",
+      "requires": "ConfigurationError exception for malformed fraud rule configuration",
+      "story": "E3-S2",
+      "trace": "AC5: Error handling for invalid config"
+    },
+    {
+      "file": "backend/src/claimflow/services/assessment_service.py",
+      "requires": "AssessmentService class with evaluate_coverage(policy: Policy, claim: Claim) -> CoverageAssessment method",
+      "story": "E4-S1",
+      "trace": "AC1, AC2, AC3, AC5, AC6: Coverage assessment logic"
+    },
+    {
+      "file": "backend/src/claimflow/types/enums.py",
+      "requires": "CoverageReasonCode enum with FULL_COVERAGE, PARTIAL_COVERAGE, NOT_COVERED, CLAIM_TYPE_NOT_COVERED, INCIDENT_OUTSIDE_COVERAGE, POLICY_EXCLUSION values",
+      "story": "E4-S1",
+      "trace": "AC3, AC4: Coverage status enumerations"
+    },
+    {
+      "file": "backend/src/claimflow/database/models.py",
+      "requires": "CoverageAssessment dataclass/model with is_covered boolean, coverage_reason_code, details fields",
+      "story": "E4-S1",
+      "trace": "AC3: Coverage result structure"
+    }
+  ],
+  "unit_test_requirements": {
+    "min_coverage": 80,
+    "target_coverage": 100,
+    "test_scenarios": [
+      {
+        "file": "backend/tests/unit/test_policy_service.py",
+        "story": "E1-S1",
+        "scenarios": [
+          {
+            "name": "test_policy_active_within_date_range",
+            "description": "Policy with effective_date and expiry_date returns True when incident_date is between them",
+            "trace": "AC1",
+            "assertions": ["assert policy_active == True"]
+          },
+          {
+            "name": "test_policy_active_exact_effective_date",
+            "description": "Policy returns True when incident_date equals effective_date",
+            "trace": "AC1",
+            "assertions": ["assert policy_active == True"]
+          },
+          {
+            "name": "test_policy_active_exact_expiry_date",
+            "description": "Policy returns True when incident_date equals expiry_date",
+            "trace": "AC1",
+            "assertions": ["assert policy_active == True"]
+          },
+          {
+            "name": "test_policy_expired",
+            "description": "Policy with expiry_date in past raises PolicyNotActiveException with POLICY_EXPIRED reason",
+            "trace": "AC2",
+            "assertions": ["assert exc.reason_code == PolicyReasonCode.POLICY_EXPIRED", "assert exc.policy_number is not None"]
+          },
+          {
+            "name": "test_policy_not_effective",
+            "description": "Policy with future effective_date raises PolicyNotActiveException with POLICY_NOT_EFFECTIVE reason",
+            "trace": "AC3",
+            "assertions": ["assert exc.reason_code == PolicyReasonCode.POLICY_NOT_EFFECTIVE"]
+          },
+          {
+            "name": "test_policy_null_expiry_indefinite",
+            "description": "Policy with NULL expiry_date is active if effective_date <= incident_date",
+            "trace": "AC4",
+            "assertions": ["assert policy_active == True"]
+          },
+          {
+            "name": "test_policy_null_expiry_before_effective",
+            "description": "Policy with NULL expiry_date is inactive if incident_date before effective_date",
+            "trace": "AC4",
+            "assertions": ["assert policy_active == False"]
+          },
+          {
+            "name": "test_validation_error_includes_all_fields",
+            "description": "PolicyNotActiveException includes policy_number, incident_date, effective_date, expiry_date, reason_code",
+            "trace": "AC5",
+            "assertions": ["assert exc.policy_number == 'MOTOR-12345'", "assert exc.incident_date is not None", "assert exc.policy_effective_date is not None", "assert exc.policy_expiry_date is not None", "assert exc.reason_code is not None"]
+          }
+        ]
+      },
+      {
+        "file": "backend/tests/unit/test_document_checklist_loader.py",
+        "story": "E2-S1",
+        "scenarios": [
+          {
+            "name": "test_motor_checklist_loaded",
+            "description": "Motor checklist includes POLICE_FIR and REPAIR_INVOICE",
+            "trace": "AC1",
+            "assertions": ["assert 'POLICE_FIR' in motor_checklist", "assert 'REPAIR_INVOICE' in motor_checklist"]
+          },
+          {
+            "name": "test_health_checklist_loaded",
+            "description": "Health checklist includes HOSPITAL_BILL and DISCHARGE_SUMMARY",
+            "trace": "AC1",
+            "assertions": ["assert 'HOSPITAL_BILL' in health_checklist", "assert 'DISCHARGE_SUMMARY' in health_checklist"]
+          },
+          {
+            "name": "test_life_checklist_loaded",
+            "description": "Life checklist includes DEATH_CERTIFICATE",
+            "trace": "AC1",
+            "assertions": ["assert 'DEATH_CERTIFICATE' in life_checklist"]
+          },
+          {
+            "name": "test_checklists_cached_at_startup",
+            "description": "Checklists are loaded from config file and cached in memory",
+            "trace": "AC2",
+            "assertions": ["assert loader.motor_checklist is not None", "assert loader.health_checklist is not None", "assert loader.life_checklist is not None"]
+          },
+          {
+            "name": "test_missing_document_identified",
+            "description": "Motor claim with only POLICE_FIR identifies REPAIR_INVOICE as missing",
+            "trace": "AC3",
+            "assertions": ["assert 'REPAIR_INVOICE' in missing_documents"]
+          },
+          {
+            "name": "test_checklist_metadata_present",
+            "description": "Checklist entries include document_type, required boolean, description",
+            "trace": "AC4",
+            "assertions": ["assert entry.required == True", "assert entry.description is not None"]
+          },
+          {
+            "name": "test_checklist_versioning",
+            "description": "Checklist configuration includes version and effective_date",
+            "trace": "AC5",
+            "assertions": ["assert checklist.version is not None", "assert checklist.effective_date is not None"]
+          }
+        ]
+      },
+      {
+        "file": "backend/tests/unit/test_fraud_rules_loader.py",
+        "story": "E3-S2",
+        "scenarios": [
+          {
+            "name": "test_fraud_rules_loaded_from_config",
+            "description": "Fraud rules loaded at startup for Motor, Health, Life",
+            "trace": "AC1, AC3",
+            "assertions": ["assert loader.rules['MOTOR'] is not None", "assert loader.rules['HEALTH'] is not None", "assert loader.rules['LIFE'] is not None"]
+          },
+          {
+            "name": "test_fraud_thresholds_per_lob",
+            "description": "Each LOB has defined fraud score threshold",
+            "trace": "AC2",
+            "assertions": ["assert motor_rules.threshold is not None", "assert health_rules.threshold is not None"]
+          },
+          {
+            "name": "test_rule_fields_present",
+            "description": "Rule includes name, operator, threshold, weight, description",
+            "trace": "AC1",
+            "assertions": ["assert rule.name is not None", "assert rule.operator is not None", "assert rule.threshold is not None", "assert rule.weight is not None"]
+          },
+          {
+            "name": "test_versioning_fields_present",
+            "description": "Rules include version_number, effective_date, created_by_admin_id",
+            "trace": "AC4",
+            "assertions": ["assert rules.version_number is not None", "assert rules.effective_date is not None", "assert rules.created_by_admin_id is not None"]
+          },
+          {
+            "name": "test_invalid_config_raises_error",
+            "description": "Malformed or missing fraud rule config raises ConfigurationError with details",
+            "trace": "AC5",
+            "assertions": ["assert 'ConfigurationError' in str(exc)", "assert 'parsing' in str(exc) or 'missing' in str(exc)"]
+          },
+          {
+            "name": "test_rules_cached_in_memory",
+            "description": "Fraud rules are immutable at runtime (cached after loading)",
+            "trace": "AC3",
+            "assertions": ["loader.rules[lob] is loader.rules[lob]"]
+          },
+          {
+            "name": "test_version_history_preserved",
+            "description": "Configuration updates create new versions without deleting old versions",
+            "trace": "AC6",
+            "assertions": ["assert len(version_history) >= 2", "assert not is_deleted(old_version)"]
+          }
+        ]
+      },
+      {
+        "file": "backend/tests/unit/test_assessment_service.py",
+        "story": "E4-S1",
+        "scenarios": [
+          {
+            "name": "test_coverage_accepts_inputs",
+            "description": "AssessmentService.evaluate_coverage accepts policy and claim objects",
+            "trace": "AC1",
+            "assertions": ["assert result is not None", "assert isinstance(result, CoverageAssessment)"]
+          },
+          {
+            "name": "test_coverage_claim_type_included",
+            "description": "Motor policy with MOTOR coverage returns is_covered=True",
+            "trace": "AC2",
+            "assertions": ["assert result.is_covered == True", "assert result.reason_code == CoverageReasonCode.FULL_COVERAGE"]
+          },
+          {
+            "name": "test_coverage_claim_type_excluded",
+            "description": "Motor policy without HEALTH returns is_covered=False with CLAIM_TYPE_NOT_COVERED",
+            "trace": "AC2, AC4",
+            "assertions": ["assert result.is_covered == False", "assert result.reason_code == CoverageReasonCode.CLAIM_TYPE_NOT_COVERED"]
+          },
+          {
+            "name": "test_coverage_policy_exclusion",
+            "description": "Policy with pre-existing exclusion returns is_covered=False with POLICY_EXCLUSION",
+            "trace": "AC2, AC4",
+            "assertions": ["assert result.is_covered == False", "assert result.reason_code == CoverageReasonCode.POLICY_EXCLUSION"]
+          },
+          {
+            "name": "test_coverage_incident_outside_period",
+            "description": "Claim with incident_date outside policy term returns is_covered=False with INCIDENT_OUTSIDE_COVERAGE",
+            "trace": "AC2, AC4",
+            "assertions": ["assert result.is_covered == False", "assert result.reason_code == CoverageReasonCode.INCIDENT_OUTSIDE_COVERAGE"]
+          },
+          {
+            "name": "test_coverage_response_includes_both_fields",
+            "description": "Coverage assessment returns is_covered boolean and reason_code",
+            "trace": "AC3",
+            "assertions": ["assert result.is_covered is not None", "assert result.reason_code is not None"]
+          },
+          {
+            "name": "test_coverage_deterministic",
+            "description": "Same policy and claim always produces same coverage decision",
+            "trace": "AC5",
+            "assertions": ["assert assess(p, c) == assess(p, c)"]
+          },
+          {
+            "name": "test_coverage_with_versioned_policy",
+            "description": "Assessment uses pinned policy version from claim",
+            "trace": "AC6",
+            "assertions": ["assert result.policy_version_id == claim.policy_version_id"]
+          },
+          {
+            "name": "test_partial_coverage",
+            "description": "Policy with partial coverage (e.g., co-insurance) returns PARTIAL_COVERAGE",
+            "trace": "AC3",
+            "assertions": ["assert result.reason_code == CoverageReasonCode.PARTIAL_COVERAGE"]
+          }
+        ]
+      }
+    ]
+  }
+}

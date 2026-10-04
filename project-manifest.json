@@ -1,0 +1,65 @@
+{
+  "name": "ClaimFlow",
+  "description": "AI-native claims management platform for Horizon Insurance automating FNOL-to-settlement pipeline",
+  "stack": {
+    "backend": {
+      "language": "python",
+      "version": "3.12",
+      "framework": "fastapi",
+      "package_manager": "uv",
+      "linter": "ruff",
+      "typechecker": "mypy",
+      "test_runner": "pytest"
+    },
+    "frontend": {
+      "language": "typescript",
+      "framework": "react",
+      "bundler": "vite",
+      "version": "18",
+      "package_manager": "npm",
+      "linter": "eslint",
+      "typechecker": "tsc",
+      "test_runner": "vitest"
+    },
+    "database": {
+      "primary": "postgresql",
+      "secondary": null
+    }
+  },
+  "stack_preset": "A",
+  "project_type": "internal_tool",
+  "evaluation": {
+    "mode": "local",
+    "api_base_url": "http://localhost:8000",
+    "ui_base_url": "http://localhost:5173",
+    "health_check": "http://localhost:8000/health",
+    "design_score_threshold": 6,
+    "design_max_iterations": 5,
+    "test_corpus_dir": "specs/test_artefacts"
+  },
+  "execution": {
+    "default_mode": "full",
+    "max_self_heal_attempts": 3,
+    "max_auto_iterations": 50,
+    "coverage_threshold": 80,
+    "session_chaining": true,
+    "agent_team_size": "auto",
+    "teammate_model": "sonnet"
+  },
+  "verification": {
+    "mode": "local",
+    "health_check": {
+      "url": "http://localhost:8000/health",
+      "retries": 5,
+      "backoff_seconds": 2
+    },
+    "local": {
+      "backend_url": "http://localhost:8000",
+      "frontend_url": "http://localhost:5173",
+      "start_commands": [
+        "cd backend && uv run uvicorn src.main:app --reload --port 8000",
+        "cd frontend && npm run dev"
+      ]
+    }
+  }
+}

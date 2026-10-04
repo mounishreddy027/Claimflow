@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment & Decision - ClaimFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <div class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">ClaimFlow</h1>
+                    <p class="text-gray-600">Claims Assessment & Adjudication</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">User: Adjuster (John Smith)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto w-full px-4 py-8">
+            <!-- Assessment Form - Ready for Decision -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4">Claim Assessment & Decision</h2>
+
+                <!-- Claim Summary -->
+                <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Claim ID</p>
+                        <p class="font-mono text-gray-900">CLM-2026-assess-001</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Policy #</p>
+                        <p class="text-gray-900">POL-2026-001234</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Fraud Status</p>
+                        <p class="text-green-600 font-semibold">✓ Passed</p>
+                    </div>
+                </div>
+
+                <!-- Coverage Analysis -->
+                <div class="mb-6 p-4 border rounded-lg">
+                    <h3 class="font-semibold text-gray-900 mb-3">Coverage Analysis</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Claimed Amount:</span>
+                            <span class="font-mono font-bold text-gray-900">$5,000.00</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Coverage Type:</span>
+                            <span class="text-gray-900">Comprehensive Motor Coverage</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Coverage Limit:</span>
+                            <span class="font-mono font-bold text-gray-900">$30,000.00</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Claim Covered:</span>
+                            <span class="text-green-600 font-semibold">✓ Yes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payable Calculation -->
+                <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="font-semibold text-gray-900 mb-4">Payable Amount Calculation</h3>
+                    <div class="space-y-2 text-sm mb-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Assessed Amount:</span>
+                            <span class="font-mono text-gray-900">$5,000.00</span>
+                        </div>
+                        <div class="border-t pt-2"></div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Deductible Applied:</span>
+                            <span class="font-mono text-gray-900">-$150.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Co-Pay (5%):</span>
+                            <span class="font-mono text-gray-900">-$0.00</span>
+                        </div>
+                        <div class="border-t border-blue-300 pt-2 mt-2"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-900">Payable Amount:</span>
+                            <span class="font-mono text-lg font-bold text-blue-600">$4,850.00</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-blue-700 bg-white px-2 py-1 rounded">
+                        Fixed-point precision: 2 decimal places | Calculation deterministic
+                    </p>
+                </div>
+
+                <!-- Decision Form -->
+                <form class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 mb-3">Adjudication Decision *</label>
+                        <div class="space-y-3">
+                            <label class="flex items-start p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="decision" value="AUTO_APPROVE" checked class="mt-1 mr-3">
+                                <div>
+                                    <p class="font-medium text-gray-900">Auto-Approve</p>
+                                    <p class="text-xs text-gray-600">Claim meets all criteria. Proceed to settlement immediately.</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="decision" value="MANUAL_REVIEW" class="mt-1 mr-3">
+                                <div>
+                                    <p class="font-medium text-gray-900">Escalate for Manual Review</p>
+                                    <p class="text-xs text-gray-600">Requires manager approval. Claim remains in UNDER_REVIEW state.</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="decision" value="REJECT" class="mt-1 mr-3">
+                                <div>
+                                    <p class="font-medium text-gray-900">Reject</p>
+                                    <p class="text-xs text-gray-600">Claim does not meet coverage requirements.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">Reason Code *</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option>Select reason...</option>
+                            <option selected>FULL_COVERAGE_APPROVED</option>
+                            <option>PARTIAL_COVERAGE</option>
+                            <option>COVERAGE_EXCLUDED</option>
+                            <option>CLAIM_LIMIT_EXCEEDED</option>
+                            <option>DEDUCTIBLE_EXCEEDED</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">Additional Notes (Optional)</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3" placeholder="Any additional notes for the record...">Motor collision claim. All documentation verified. Claim within coverage limits and deductible applied correctly.</textarea>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded text-xs text-gray-600">
+                        <p><strong>Assessment Meta (Auto-captured):</strong></p>
+                        <p>Assessed By: adjuster-john-001 (John Smith)</p>
+                        <p>Timestamp: 2026-10-04 11:00:00 UTC</p>
+                        <p>Correlation ID: claim-assess-abc123</p>
+                    </div>
+
+                    <div class="flex gap-4 pt-4 border-t">
+                        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                            Submit Decision
+                        </button>
+                        <button type="reset" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+
+                <p class="text-xs text-gray-600 mt-4">
+                    <strong>API Call:</strong> POST /api/claims/{claim_id}/assess with decision, reason_code, assessed_by_adjuster_id
+                </p>
+            </div>
+
+            <!-- Rejection Example -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4">Assessment Example - Rejection Decision</h2>
+
+                <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Claim ID</p>
+                        <p class="font-mono text-gray-900">CLM-2026-reject-001</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Policy #</p>
+                        <p class="text-gray-900">POL-2026-005678</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Coverage Status</p>
+                        <p class="text-red-600 font-semibold">✗ Not Covered</p>
+                    </div>
+                </div>
+
+                <div class="mb-6 p-4 border-l-4 border-red-500 bg-red-50 rounded">
+                    <h3 class="font-semibold text-gray-900 mb-2">Coverage Analysis</h3>
+                    <p class="text-sm text-gray-700 mb-2">
+                        <strong>Issue:</strong> The claim is for collision damage at a truck repair shop. The incident date is 2026-10-02,
+                        but the policy coverage specifically EXCLUDES damage while vehicle is at repair facilities (per section 4.2.1 of policy document).
+                    </p>
+                    <p class="text-sm text-red-700 font-medium">
+                        This claim does not meet coverage requirements.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-red-50 border rounded-lg mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-3">Decision</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Decision:</span>
+                            <span class="font-bold text-red-600">REJECT</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Reason Code:</span>
+                            <span class="font-bold text-gray-900">COVERAGE_EXCLUDED</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Payable Amount:</span>
+                            <span class="font-bold text-gray-900">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-600">
+                    <strong>API Response:</strong> HTTP 200 | claim_state transitions to REJECTED |
+                    assessment_id generated with decision details
+                </p>
+            </div>
+
+            <!-- Manual Review Escalation -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Assessment Example - Escalation for Manual Review</h2>
+
+                <div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
+                    <p class="text-sm text-yellow-800">
+                        <strong>Scenario:</strong> Claim passes all automated checks but appears to be a borderline case
+                        requiring management judgment (e.g., ambiguous coverage interpretation, high-value claim with unusual pattern).
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Claim ID</p>
+                        <p class="font-mono text-gray-900">CLM-2026-manual-001</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Claimed Amount</p>
+                        <p class="text-gray-900">$18,500.00</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 uppercase">Coverage Limit</p>
+                        <p class="text-gray-900">$30,000.00</p>
+                    </div>
+                </div>
+
+                <div class="p-4 border rounded-lg mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-3">Reason for Escalation</h3>
+                    <p class="text-sm text-gray-700">
+                        This is a high-value claim from a new customer with only 3 months of policy history.
+                        While all documentation checks pass and fraud screening shows low risk, the adjuster recommends
+                        management review given the customer profile and claim size. Escalation allows for additional
+                        verification before final approval.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold text-gray-900 mb-2">Decision</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Decision:</span>
+                            <span class="font-bold text-gray-900">MANUAL_REVIEW</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Reason Code:</span>
+                            <span class="font-bold text-gray-900">ESCALATED_REVIEW</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Claim State:</span>
+                            <span class="font-bold text-gray-900">UNDER_REVIEW (awaiting manager)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Next Action:</span>
+                            <span class="text-gray-900">Manager will review and make final decision</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-600 mt-4">
+                    <strong>API Response:</strong> HTTP 200 | claim_state remains UNDER_REVIEW |
+                    internal_status = ESCALATED_REVIEW | notification sent to management queue
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "effective_date": "2026-01-01",
+  "rules_by_lob": {
+    "Motor": {
+      "threshold": 60,
+      "rules": [
+        {
+          "name": "high_claim_amount",
+          "predicate": "claimed_amount > 100000",
+          "weight": 30,
+          "description": "Claims over 100k flagged as high-value"
+        },
+        {
+          "name": "multiple_claims",
+          "predicate": "claims_in_6_months > 2",
+          "weight": 25,
+          "description": "Multiple claims in 6 months indicates pattern"
+        },
+        {
+          "name": "late_reporting",
+          "predicate": "days_to_report > 30",
+          "weight": 15,
+          "description": "Late claim reporting raises suspicion"
+        }
+      ]
+    },
+    "Health": {
+      "threshold": 50,
+      "rules": [
+        {
+          "name": "unusual_diagnosis",
+          "predicate": "diagnosis_code in [rare_conditions]",
+          "weight": 35,
+          "description": "Unusual or rare diagnosis codes"
+        },
+        {
+          "name": "high_treatment_cost",
+          "predicate": "treatment_cost > sum_insured * 0.8",
+          "weight": 20,
+          "description": "Treatment cost close to sum insured"
+        },
+        {
+          "name": "concurrent_claims",
+          "predicate": "claims_overlap_period > 0",
+          "weight": 15,
+          "description": "Claims with overlapping treatment periods"
+        }
+      ]
+    },
+    "Life": {
+      "threshold": 45,
+      "rules": [
+        {
+          "name": "early_death_claim",
+          "predicate": "months_since_policy_start < 6",
+          "weight": 40,
+          "description": "Death claim within first 6 months of policy"
+        },
+        {
+          "name": "high_sum_insured",
+          "predicate": "sum_insured > 5000000",
+          "weight": 20,
+          "description": "Unusually high sum insured"
+        },
+        {
+          "name": "incomplete_medical_history",
+          "predicate": "medical_history_details_missing > 3",
+          "weight": 15,
+          "description": "Missing critical medical history fields"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1315 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ClaimFlow API",
+    "description": "AI-native claims management platform FNOL-to-settlement pipeline",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ClaimFlow Team",
+      "email": "support@claimflow.io"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.claimflow.io/api",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/claims/intake": {
+      "post": {
+        "summary": "File a new claim (FNOL)",
+        "tags": ["Claims Intake"],
+        "operationId": "createClaim",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimIntakeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Claim created successfully",
+            "headers": {
+              "X-Correlation-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Policy not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Policy not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}": {
+      "get": {
+        "summary": "Query claim status",
+        "tags": ["Claims Status"],
+        "operationId": "getClaim",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Claim details",
+            "headers": {
+              "X-Correlation-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimDetailResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid authentication"
+          },
+          "404": {
+            "description": "Claim not found"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/documents": {
+      "post": {
+        "summary": "Upload document",
+        "tags": ["Document Management"],
+        "operationId": "uploadDocument",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid document type"
+          },
+          "401": {
+            "description": "Missing authentication"
+          },
+          "404": {
+            "description": "Claim not found"
+          }
+        }
+      }
+    },
+    "/document-verification-queue": {
+      "get": {
+        "summary": "Get document verification queue",
+        "tags": ["Document Management"],
+        "operationId": "getVerificationQueue",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verification queue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationQueueResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/verify-documents": {
+      "post": {
+        "summary": "Submit document verification decisions",
+        "tags": ["Document Management"],
+        "operationId": "verifyDocuments",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyDocumentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationResultResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Invalid claim state or incomplete documents"
+          },
+          "422": {
+            "description": "Incomplete document set"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/evaluate-fraud": {
+      "post": {
+        "summary": "Evaluate fraud score",
+        "tags": ["Fraud Detection"],
+        "operationId": "evaluateFraud",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fraud evaluation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FraudEvaluationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Invalid claim state"
+          },
+          "500": {
+            "description": "Fraud rules not available"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/assess": {
+      "post": {
+        "summary": "Submit assessment decision",
+        "tags": ["Assessment & Adjudication"],
+        "operationId": "submitAssessment",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssessmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Assessment recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssessmentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Invalid claim state"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/settle": {
+      "post": {
+        "summary": "Confirm settlement",
+        "tags": ["Settlement & Payouts"],
+        "operationId": "settlePayment",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettlementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settlement confirmed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettlementResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Invalid claim state or settlement already exists"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/dispute": {
+      "post": {
+        "summary": "File dispute on settled claim",
+        "tags": ["Dispute & Sub-Claims"],
+        "operationId": "fileDispute",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Dispute filed, sub-claim created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Invalid parent claim state"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/linked-claims": {
+      "get": {
+        "summary": "Get linked sub-claims",
+        "tags": ["Dispute & Sub-Claims"],
+        "operationId": "getLinkedClaims",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Linked claims retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkedClaimsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/override-decision": {
+      "post": {
+        "summary": "Override assessment decision (admin only)",
+        "tags": ["Admin & Compliance"],
+        "operationId": "overrideDecision",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverrideRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Override applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverrideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Admin role required"
+          },
+          "404": {
+            "description": "Claim not found"
+          },
+          "409": {
+            "description": "Claim already overridden"
+          }
+        }
+      }
+    },
+    "/audit-trail/{claim_id}": {
+      "get": {
+        "summary": "Get audit trail for claim",
+        "tags": ["Admin & Compliance"],
+        "operationId": "getAuditTrail",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "operation_type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit trail retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditTrailResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Claim not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClaimIntakeRequest": {
+        "type": "object",
+        "required": ["policy_number", "incident_date", "claim_type", "incident_description"],
+        "properties": {
+          "policy_number": {
+            "type": "string",
+            "example": "MOTOR-12345"
+          },
+          "incident_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-04T10:00:00Z"
+          },
+          "claim_type": {
+            "type": "string",
+            "enum": ["MOTOR", "HEALTH", "LIFE"]
+          },
+          "incident_description": {
+            "type": "string",
+            "example": "Vehicle collision on highway"
+          }
+        }
+      },
+      "ClaimResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claim_state": {
+            "type": "string",
+            "enum": ["FILED", "UNDER_REVIEW", "APPROVED", "REJECTED", "SETTLED", "CLOSED", "REOPENED"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "policy_rule_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "incident_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "claim_type": {
+            "type": "string",
+            "enum": ["MOTOR", "HEALTH", "LIFE"]
+          }
+        }
+      },
+      "ClaimDetailResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claim_state": {
+            "type": "string"
+          },
+          "incident_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "policy_number": {
+            "type": "string"
+          },
+          "line_of_business": {
+            "type": "string",
+            "enum": ["MOTOR", "HEALTH", "LIFE"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason_code": {
+            "type": ["string", "null"]
+          },
+          "missing_documents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "payable_amount": {
+            "type": ["number", "null"],
+            "format": "decimal"
+          },
+          "rejection_reason_code": {
+            "type": ["string", "null"]
+          },
+          "incident_description": {
+            "type": "string"
+          },
+          "fraud_score": {
+            "type": ["number", "null"],
+            "format": "decimal"
+          },
+          "fraud_flagged": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DocumentUploadRequest": {
+        "type": "object",
+        "required": ["file", "document_type"],
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "document_type": {
+            "type": "string",
+            "enum": ["POLICE_FIR", "REPAIR_INVOICE", "HOSPITAL_BILL", "DISCHARGE_SUMMARY", "DEATH_CERTIFICATE"]
+          }
+        }
+      },
+      "DocumentResponse": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "document_type": {
+            "type": "string"
+          },
+          "file_url": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED"]
+          },
+          "file_size_bytes": {
+            "type": "integer"
+          }
+        }
+      },
+      "VerificationQueueResponse": {
+        "type": "object",
+        "properties": {
+          "total_count": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerificationQueueItem"
+            }
+          }
+        }
+      },
+      "VerificationQueueItem": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_number": {
+            "type": "string"
+          },
+          "line_of_business": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uploaded_documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentStatus"
+            }
+          },
+          "missing_documents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DocumentStatus": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "document_type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VerifyDocumentsRequest": {
+        "type": "object",
+        "required": ["decisions", "verified_by_adjuster_id"],
+        "properties": {
+          "decisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentDecision"
+            }
+          },
+          "verified_by_adjuster_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "DocumentDecision": {
+        "type": "object",
+        "required": ["document_id", "status", "reason_code"],
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["VERIFIED", "REJECTED"]
+          },
+          "reason_code": {
+            "type": "string",
+            "enum": ["ACCEPTABLE", "UNREADABLE", "INVALID_FORMAT"]
+          }
+        }
+      },
+      "VerificationResultResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claim_state": {
+            "type": "string"
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "verification_results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerificationResult"
+            }
+          }
+        }
+      },
+      "VerificationResult": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FraudEvaluationResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fraud_score": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "fraud_rules_triggered": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "is_flagged": {
+            "type": "boolean"
+          },
+          "claim_state": {
+            "type": "string"
+          },
+          "internal_status": {
+            "type": "string"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AssessmentRequest": {
+        "type": "object",
+        "required": ["decision", "reason_code", "assessed_by_adjuster_id"],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": ["AUTO_APPROVE", "MANUAL_REVIEW", "REJECT"]
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "assessed_by_adjuster_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AssessmentResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "claim_state": {
+            "type": "string"
+          },
+          "assessed_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "payable_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "deductible_applied": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "co_pay_applied": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "assessed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SettlementRequest": {
+        "type": "object",
+        "required": ["approved_by_admin_id"],
+        "properties": {
+          "approved_by_admin_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "settlement_notes": {
+            "type": "string"
+          }
+        }
+      },
+      "SettlementResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "settlement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "payout_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "payout_state": {
+            "type": "string",
+            "enum": ["PENDING_DISBURSEMENT", "DISBURSED", "FAILED_RETRY"]
+          },
+          "approved_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "claim_state": {
+            "type": "string"
+          },
+          "reason_code": {
+            "type": "string"
+          }
+        }
+      },
+      "DisputeRequest": {
+        "type": "object",
+        "required": ["sub_claim_type", "reason", "created_by_customer_id"],
+        "properties": {
+          "sub_claim_type": {
+            "type": "string",
+            "enum": ["DISPUTE", "REOPEN"]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_by_customer_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "DisputeResponse": {
+        "type": "object",
+        "properties": {
+          "sub_claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent_claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "child_claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sub_claim_type": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LinkedClaimsResponse": {
+        "type": "object",
+        "properties": {
+          "parent_claim": {
+            "$ref": "#/components/schemas/ParentClaim"
+          },
+          "sub_claims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubClaim"
+            }
+          }
+        }
+      },
+      "ParentClaim": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claim_state": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "settled_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
+      "SubClaim": {
+        "type": "object",
+        "properties": {
+          "sub_claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "child_claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sub_claim_type": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "child_claim_state": {
+            "type": "string"
+          }
+        }
+      },
+      "OverrideRequest": {
+        "type": "object",
+        "required": ["override_decision", "reason_code", "admin_actor_id"],
+        "properties": {
+          "override_decision": {
+            "type": "string",
+            "enum": ["APPROVE_REJECTED", "REJECT_APPROVED"]
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "justification_comment": {
+            "type": "string"
+          },
+          "admin_actor_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "OverrideResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "override_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "override_decision": {
+            "type": "string"
+          },
+          "previous_state": {
+            "type": "string"
+          },
+          "new_state": {
+            "type": "string"
+          },
+          "settlement_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "payout_amount": {
+            "type": ["number", "null"],
+            "format": "decimal"
+          },
+          "override_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuditTrailResponse": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "total_count": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "audit_entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEntry"
+            }
+          }
+        }
+      },
+      "AuditEntry": {
+        "type": "object",
+        "properties": {
+          "audit_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "correlation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actor_role": {
+            "type": "string"
+          },
+          "operation_type": {
+            "type": "string"
+          },
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "previous_state": {
+            "type": ["string", "null"]
+          },
+          "new_state": {
+            "type": ["string", "null"]
+          },
+          "reason_code": {
+            "type": ["string", "null"]
+          },
+          "detail_json": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error_code", "message"],
+        "properties": {
+          "error_code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "correlation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Actor-ID"
+      },
+      "RoleHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Actor-Role"
+      },
+      "CorrelationId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Correlation-ID"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyHeader": [],
+      "RoleHeader": [],
+      "CorrelationId": []
+    }
+  ]
+}
