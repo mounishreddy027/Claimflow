@@ -10,6 +10,8 @@ from claimflow.repositories.claim_repository import ClaimRepository
 from claimflow.services.audit_service import AuditService
 from claimflow.types.enums import ActorRole, ClaimState, ClaimType, OperationType
 
+pytestmark = pytest.mark.AC_10
+
 
 @pytest.fixture
 def claim_repo() -> ClaimRepository:

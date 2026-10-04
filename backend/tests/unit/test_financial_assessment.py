@@ -1,8 +1,12 @@
 import random
 from decimal import Decimal
 
+import pytest
+
 from claimflow.services.assessment_engine import AssessmentEngine
 from claimflow.utils.financial import calculate_payable_amount, to_decimal
+
+pytestmark = pytest.mark.AC_05
 
 
 def test_standard_assessment_calculation() -> None:

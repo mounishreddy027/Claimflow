@@ -7,6 +7,8 @@ import pytest
 from claimflow.config.checklists import DocumentChecklistLoader
 from claimflow.types.enums import ClaimType, DocumentType
 
+pytestmark = pytest.mark.AC_03
+
 
 class TestDocumentChecklistLoader:
     """Test document checklist loading, caching, and validation."""

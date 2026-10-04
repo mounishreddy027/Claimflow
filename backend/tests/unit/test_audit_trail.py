@@ -9,6 +9,8 @@ from claimflow.types.enums import ActorRole, OperationType
 from claimflow.types.exceptions import AuditIntegrityError, ImmutabilityViolationError
 from claimflow.utils.pii_redaction import redact_pii
 
+pytestmark = pytest.mark.AC_09
+
 
 def test_pii_redaction_utility() -> None:
     raw_data: dict[str, object] = {

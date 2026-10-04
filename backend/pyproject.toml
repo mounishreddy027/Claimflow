@@ -17,6 +17,18 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+markers = [
+    "AC_01: First Notice of Loss intake",
+    "AC_02: Policy active date validation",
+    "AC_03: Document checklist enforcement",
+    "AC_04: Fraud screening",
+    "AC_05: Assessment calculation",
+    "AC_06: Adjudication decisioning",
+    "AC_07: Settlement payout",
+    "AC_08: Sub-claim reopen",
+    "AC_09: Admin override",
+    "AC_10: State machine lifecycle transitions",
+]
 
 [tool.mypy]
 python_version = "3.10"

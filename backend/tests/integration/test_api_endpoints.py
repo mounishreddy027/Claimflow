@@ -16,6 +16,7 @@ def test_health_endpoint(client: TestClient) -> None:
     assert data["status"] == "ok"
 
 
+@pytest.mark.AC_01
 def test_intake_motor_claim_happy_path(client: TestClient) -> None:
     payload = {
         "policyNumber": "POL-MTR-1001",
@@ -53,6 +54,7 @@ def test_intake_motor_claim_happy_path(client: TestClient) -> None:
     assert get_res.json()["claimId"] == claim_id
 
 
+@pytest.mark.AC_02
 def test_intake_expired_policy_rejected(client: TestClient) -> None:
     payload = {
         "policyNumber": "POL-MTR-9999",
@@ -70,6 +72,7 @@ def test_intake_expired_policy_rejected(client: TestClient) -> None:
     assert data["policyNumber"] == "POL-MTR-9999"
 
 
+@pytest.mark.AC_02
 def test_intake_lapsed_policy_rejected(client: TestClient) -> None:
     payload = {
         "policyNumber": "POL-HLT-5555",
@@ -86,6 +89,7 @@ def test_intake_lapsed_policy_rejected(client: TestClient) -> None:
     assert data["code"] == "POLICY_NOT_ACTIVE_ON_INCIDENT_DATE"
 
 
+@pytest.mark.AC_02
 def test_intake_nonexistent_policy_not_found(client: TestClient) -> None:
     payload = {
         "policyNumber": "POL-NONEXISTENT",
@@ -102,6 +106,7 @@ def test_intake_nonexistent_policy_not_found(client: TestClient) -> None:
     assert data["code"] == "POLICY_NOT_FOUND"
 
 
+@pytest.mark.AC_03
 def test_document_verification_flow(client: TestClient) -> None:
     # 1. Intake Motor claim
     payload = {
@@ -150,6 +155,10 @@ def test_document_verification_flow(client: TestClient) -> None:
     assert claim_res.json()["status"] == "UNDER_REVIEW"
 
 
+@pytest.mark.AC_05
+@pytest.mark.AC_06
+@pytest.mark.AC_07
+@pytest.mark.AC_08
 def test_assessment_settlement_and_reopen_flow(client: TestClient) -> None:
     # 1. Create claim and advance to UNDER_REVIEW
     intake = client.post(
@@ -224,6 +233,7 @@ def test_assessment_settlement_and_reopen_flow(client: TestClient) -> None:
     assert len(audit_data) >= 5
 
 
+@pytest.mark.AC_09
 def test_admin_override_endpoint(client: TestClient) -> None:
     # Create claim, reject it or auto-approve, then admin overrides
     intake = client.post(

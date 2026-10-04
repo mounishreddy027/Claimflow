@@ -4,6 +4,8 @@ from claimflow.domain.state_machine import ClaimStateMachine
 from claimflow.types.enums import ActorRole, ClaimState
 from claimflow.types.exceptions import InvalidClaimStateException
 
+pytestmark = pytest.mark.AC_10
+
 
 def test_happy_path_lifecycle_progression() -> None:
     sm = ClaimStateMachine()

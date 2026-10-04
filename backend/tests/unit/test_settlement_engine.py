@@ -24,6 +24,8 @@ from claimflow.types.exceptions import (
     PayoutInvariantViolationException,
 )
 
+pytestmark = [pytest.mark.AC_06, pytest.mark.AC_07]
+
 
 @pytest.fixture
 def settlement_service() -> SettlementService:

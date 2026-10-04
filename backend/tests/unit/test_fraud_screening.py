@@ -1,9 +1,13 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
+import pytest
+
 from claimflow.domain.claim import Claim
 from claimflow.services.fraud_service import FraudService
 from claimflow.types.enums import ClaimType
+
+pytestmark = pytest.mark.AC_04
 
 
 def test_low_risk_claim_scores_below_threshold() -> None:

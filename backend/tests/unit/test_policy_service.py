@@ -6,6 +6,8 @@ import pytest
 from claimflow.services.policy_service import PolicyService
 from claimflow.types.exceptions import PolicyNotActiveException
 
+pytestmark = pytest.mark.AC_02
+
 
 @pytest.fixture
 def policy_service() -> PolicyService:
