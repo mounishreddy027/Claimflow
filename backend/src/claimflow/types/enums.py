@@ -7,6 +7,15 @@ class ClaimType(str, Enum):
     LIFE = "LIFE"
 
 
+# === E1-S1: Policy Active Date Validation ===
+class PolicyRejectReason(str, Enum):
+    """Reason codes for policy rejection due to inactivity."""
+
+    POLICY_EXPIRED = "POLICY_EXPIRED"
+    POLICY_NOT_EFFECTIVE = "POLICY_NOT_EFFECTIVE"
+# === END E1-S1 ===
+
+
 # === E4-S1: Coverage Assessment ===
 class CoverageReasonCode(str, Enum):
     CLAIM_TYPE_NOT_COVERED = "CLAIM_TYPE_NOT_COVERED"

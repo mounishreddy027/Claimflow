@@ -1,10 +1,12 @@
 from datetime import date
-from typing import Optional
 
 
 class ConfigurationError(Exception):
     """Raised when configuration loading or validation fails."""
-    pass
+
+
+# === E3-S2: Fraud Rules Configuration ===
+# === END E3-S2 ===
 
 
 # === E1-S1: Policy Active Date Validation ===
@@ -14,7 +16,7 @@ class PolicyNotActiveException(Exception):
         policy_number: str,
         incident_date: date,
         effective_date: date,
-        expiry_date: Optional[date],
+        expiry_date: date | None,
         reason_code: str,
     ) -> None:
         self.policy_number = policy_number
