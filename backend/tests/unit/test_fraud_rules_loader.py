@@ -1,7 +1,9 @@
-import pytest
-from pathlib import Path
 import json
 import tempfile
+from pathlib import Path
+
+import pytest
+
 from claimflow.config_loaders.fraud_rules_loader import (
     FraudRulesLoader,
 )

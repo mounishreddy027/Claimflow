@@ -1,6 +1,5 @@
-from datetime import datetime
 from dataclasses import dataclass
-from typing import Optional
+from datetime import datetime
 
 
 # === E3-S2: Fraud Rules Configuration ===
@@ -11,9 +10,9 @@ class FraudRuleVersion:
     effective_date: str
     lob: str
     rules_json: str
-    created_by_admin_id: Optional[str] = None
+    created_by_admin_id: str | None = None
     is_current: bool = True
-    created_at: Optional[datetime] = None
+    created_at: datetime | None = None
 
     def to_dict(self) -> dict:
         return {

@@ -1,9 +1,8 @@
-from datetime import datetime, UTC
-from typing import Optional
+from datetime import datetime, timezone
 
+from claimflow.database.models import CoverageAssessment
 from claimflow.types.enums import ClaimType, CoverageReasonCode
 from claimflow.types.exceptions import CoverageDefinitionNotFoundError
-from claimflow.database.models import CoverageAssessment
 
 
 class CoverageAssessmentService:
@@ -14,7 +13,7 @@ class CoverageAssessmentService:
         self,
         policy_id: str,
         claim_type: ClaimType,
-        claim_incident_type: Optional[str] = None
+        claim_incident_type: str | None = None
     ) -> CoverageAssessment:
         policy = self.policy_repository.get_policy(policy_id)
         if policy is None:
@@ -24,7 +23,7 @@ class CoverageAssessmentService:
             return CoverageAssessment(
                 is_covered=False,
                 coverage_reason_code=CoverageReasonCode.POLICY_EXCLUSION,
-                assessed_at=datetime.now(UTC)
+                assessed_at=datetime.now(timezone.utc)
             )
 
         coverage = policy.get("coverage", [])
@@ -39,10 +38,10 @@ class CoverageAssessmentService:
         return CoverageAssessment(
             is_covered=is_covered,
             coverage_reason_code=reason_code,
-            assessed_at=datetime.now(UTC)
+            assessed_at=datetime.now(timezone.utc)
         )
 
-    def check_exclusions(self, policy_id: str, incident_type: Optional[str] = None) -> bool:
+    def check_exclusions(self, policy_id: str, incident_type: str | None = None) -> bool:
         if incident_type is None:
             return False
 

@@ -1,11 +1,12 @@
+from collections.abc import Mapping
 from datetime import date
-from typing import Any
+from typing import cast
 
 from claimflow.types.exceptions import PolicyNotActiveException
 
 
 class PolicyService:
-    def validate_active(self, policy: dict[str, Any], incident_date: date) -> bool:
+    def validate_active(self, policy: Mapping[str, object], incident_date: date) -> bool:
         """
         Validate if a policy is active on the given incident date.
 
@@ -23,9 +24,10 @@ class PolicyService:
         Raises:
             PolicyNotActiveException: If policy is not active
         """
-        policy_number: str = policy["policy_number"]
-        effective_date: date = policy["effective_date"]
-        expiry_date: date | None = policy["expiry_date"]
+        policy_number: str = str(policy["policy_number"])
+        effective_date: date = cast(date, policy["effective_date"])
+        raw_expiry = policy.get("expiry_date")
+        expiry_date: date | None = cast(date, raw_expiry) if raw_expiry is not None else None
 
         if incident_date < effective_date:
             raise PolicyNotActiveException(
