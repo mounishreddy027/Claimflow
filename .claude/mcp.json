@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"],
+      "env": {
+        "PLAYWRIGHT_HEADLESS": "true",
+        "EVAL_BASE_URL": "http://localhost:8000",
+        "BROWSER": "chromium"
+      }
+    }
+  }
+}
