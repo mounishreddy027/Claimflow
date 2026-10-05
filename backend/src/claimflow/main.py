@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from claimflow.api.routes import (
     assessment,
@@ -10,9 +12,12 @@ from claimflow.api.routes import (
     claims,
     disputes,
     documents,
+    fraud,
     overrides,
+    policies,
     settlement,
 )
+from claimflow.config.env import get_ai_config
 from claimflow.types.exceptions import (
     ImmutabilityViolationError,
     InvalidClaimStateException,
@@ -23,7 +28,7 @@ from claimflow.types.exceptions import (
 
 app = FastAPI(
     title="ClaimFlow Platform API",
-    description="Enterprise Claims Management Platform for Horizon Insurance",
+    description="Enterprise Claims Management Platform for Horizon Insurance with AI Decisioning & Deterministic Fallback",
     version="1.0.0",
 )
 
@@ -37,6 +42,8 @@ app.add_middleware(
 
 app.include_router(claims.router)
 app.include_router(documents.router)
+app.include_router(fraud.router)
+app.include_router(policies.router)
 app.include_router(assessment.router)
 app.include_router(settlement.router)
 app.include_router(overrides.router)
@@ -48,6 +55,38 @@ app.include_router(audit.router)
 def health_check() -> dict[str, str]:
     """Health check endpoint complying with NFR-07 (< 1,000ms latency)."""
     return {"status": "ok", "service": "claimflow"}
+
+
+@app.get("/api/v1/system/config", tags=["system"])
+def get_system_config() -> dict[str, object]:
+    """System AI configuration and fallback engine status."""
+    cfg = get_ai_config()
+    return {
+        "aiConfigured": bool(cfg.get("api_key")),
+        "aiProvider": cfg.get("provider"),
+        "aiModel": cfg.get("model"),
+        "fallbackEngine": "DETERMINISTIC_RULES (FR-01 to FR-06)",
+    }
+
+
+# Frontend integration: serve frontend static files and root dashboard
+frontend_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend"
+if frontend_dir.exists():
+    app.mount("/frontend", StaticFiles(directory=str(frontend_dir)), name="frontend")
+
+    @app.get("/", include_in_schema=False)
+    def serve_frontend() -> FileResponse:
+        index_file = frontend_dir / "index.html"
+        if index_file.exists():
+            return FileResponse(str(index_file))
+        return JSONResponse({"message": "ClaimFlow API active. Frontend index.html not yet built."})
+
+    @app.get("/app.js", include_in_schema=False)
+    def serve_app_js() -> FileResponse:
+        js_file = frontend_dir / "app.js"
+        if js_file.exists():
+            return FileResponse(str(js_file), media_type="application/javascript")
+        return JSONResponse({"error": "not found"}, status_code=404)
 
 
 @app.exception_handler(PolicyNotActiveException)
