@@ -92,6 +92,42 @@ def submit_fnol(
     )
 
 
+@router.get("", response_model=list[ClaimDetailResponse])
+def list_all_claims(
+    claim_repo: ClaimRepository = Depends(get_claim_repository),
+) -> list[ClaimDetailResponse]:
+    claims = claim_repo.list_claims()
+    results: list[ClaimDetailResponse] = []
+    for claim in claims:
+        transitions = [
+            StateTransitionResponse(
+                transitionId=t.transition_id,
+                fromState=t.from_state,
+                toState=t.to_state,
+                actorId=t.actor_id,
+                actorRole=t.actor_role,
+                reasonCode=t.reason_code,
+                timestamp=t.timestamp,
+            )
+            for t in claim.transitions
+        ]
+        results.append(
+            ClaimDetailResponse(
+                claimId=claim.claim_id,
+                policyNumber=claim.policy_number,
+                claimType=claim.claim_type.value,
+                status=claim.current_state.value,
+                claimAmount=claim.claim_amount,
+                incidentDate=claim.incident_date,
+                incidentDescription=claim.incident_description,
+                transitions=transitions,
+                createdAt=claim.created_at,
+                updatedAt=claim.updated_at,
+            )
+        )
+    return results
+
+
 @router.get("/{claim_id}", response_model=ClaimDetailResponse)
 def get_claim_details(
     claim_id: str,

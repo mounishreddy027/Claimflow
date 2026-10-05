@@ -286,3 +286,44 @@ def test_admin_override_endpoint(client: TestClient) -> None:
 
     # Status should now be REJECTED
     assert client.get(f"/api/v1/claims/{claim_id}").json()["status"] == "REJECTED"
+
+
+def test_list_all_claims_and_policies_endpoints(client: TestClient) -> None:
+    pol_res = client.get("/api/v1/policies")
+    assert pol_res.status_code == 200
+    policies = pol_res.json()
+    assert len(policies) >= 3
+    assert any(p["policyNumber"] == "POL-MTR-1001" for p in policies)
+
+    claims_res = client.get("/api/v1/claims")
+    assert claims_res.status_code == 200
+    assert isinstance(claims_res.json(), list)
+
+
+@pytest.mark.AC_04
+def test_fraud_screening_endpoint_and_fallback(client: TestClient) -> None:
+    intake = client.post(
+        "/api/v1/claims/intake",
+        json={
+            "policyNumber": "POL-MTR-1001",
+            "incidentDate": "2026-06-15",
+            "claimType": "MOTOR",
+            "claimAmount": 2500.00,
+            "incidentDescription": "Accident on expressway",
+            "supportingDocuments": [],
+        },
+    )
+    claim_id = intake.json()["claimId"]
+
+    # Test POST /api/v1/claims/{claim_id}/fraud-screen
+    res = client.post(
+        f"/api/v1/claims/{claim_id}/fraud-screen",
+        json={"forceDeterministic": True},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["claimId"] == claim_id
+    assert data["evaluationMode"] == "DETERMINISTIC_FALLBACK"
+    assert data["fraudScore"] >= 0
+    assert "reportId" in data
+

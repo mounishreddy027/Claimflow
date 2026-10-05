@@ -78,3 +78,8 @@ class PolicyRepository:
         """Register or overwrite policy in repository."""
         pol_num = str(policy_data["policy_number"])
         self._policies[pol_num] = dict(policy_data)
+
+    def list_policies(self) -> list[Mapping[str, object]]:
+        """Return all registered policies in the repository."""
+        return list(self._policies.values())
+

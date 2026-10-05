@@ -171,3 +171,42 @@ class AuditLogResponse(BaseModel):
     detailJson: dict[str, object] = Field(default_factory=dict, alias="detail_json")
     previousHash: str = Field(alias="previous_hash")
     entryHash: str = Field(alias="entry_hash")
+
+
+class FraudScreenRequest(BaseModel):
+    forceDeterministic: bool = False
+    incidentHour: int | None = None
+
+
+class FraudScreenResponse(BaseModel):
+    reportId: str
+    claimId: str
+    policyVersion: int
+    fraudScore: int
+    policyThreshold: int
+    isFlagged: bool
+    evaluationMode: str
+    aiAnalysis: str | None = None
+    aiConfidence: float | None = None
+    triggeredRules: list[dict[str, object]]
+    evaluatedAt: datetime
+
+
+class PolicyItemResponse(BaseModel):
+    policyNumber: str
+    lineOfBusiness: str
+    status: str
+    effectiveDate: date
+    expiryDate: date | None = None
+    sumInsured: Decimal
+    deductible: Decimal
+    copayPercent: Decimal
+    fraudThreshold: int
+
+
+class SystemConfigResponse(BaseModel):
+    aiConfigured: bool
+    aiProvider: str | None
+    aiModel: str | None
+    fallbackEngine: str
+
