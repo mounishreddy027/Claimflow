@@ -1,9 +1,10 @@
 {
-  "name": "claude-harness-engine",
+  "name": "claimflow",
   "version": "1.0.0",
-  "description": "GAN-inspired harness for autonomous long-running application development with Karpathy ratcheting, agent teams, and layered evaluation.",
+  "description": "ClaimFlow Enterprise Insurance Claims Operations Platform (BC-AINE-005) with AI Decisioning, WORM Ledger, and Autonomous Evaluator Quality Gates",
   "author": {
-    "name": "claude-harness-engine"
+    "name": "Horizon Insurance Claims Engineering"
   },
-  "homepage": "https://github.com/cwijayasundara/claude_harness_eng_v1"
+  "homepage": "https://github.com/cwijayasundara/claude_harness_eng_v1",
+  "domain": "insurance-claims-operations"
 }

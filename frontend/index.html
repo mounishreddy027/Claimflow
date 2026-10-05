@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClaimFlow — Autonomous Insurance Claims Lifecycle Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">ClaimFlow</h1>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Enterprise</span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block">Autonomous FNOL-to-Settlement Lifecycle Engine</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Engine Badges -->
+      <div class="flex items-center space-x-3">
+        <div id="aiModeBadge" class="flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+          <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
+          <span id="aiModeText">Checking AI Engine...</span>
+        </div>
+
+        <div id="healthBadge" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>API Online</span>
+        </div>
+
+        <button onclick="refreshData()" title="Refresh Claims and Data" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 overflow-x-auto scrollbar-none py-1">
+      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab px-3.5 py-2 text-sm font-medium rounded-lg transition text-white bg-blue-600 shadow-sm flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>Claims Dashboard</span>
+      </button>
+
+      <button onclick="switchTab('intake')" id="tab-intake" class="nav-tab px-3.5 py-2 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>File FNOL</span>
+      </button>
+
+      <button onclick="switchTab('fraud')" id="tab-fraud" class="nav-tab px-3.5 py-2 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>AI Fraud Screener</span>
+      </button>
+
+      <button onclick="switchTab('documents')" id="tab-documents" class="nav-tab px-3.5 py-2 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>Doc Verification</span>
+      </button>
+
+      <button onclick="switchTab('assessment')" id="tab-assessment" class="nav-tab px-3.5 py-2 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Assessment & Settlement</span>
+      </button>
+
+      <button onclick="switchTab('audit')" id="tab-audit" class="nav-tab px-3.5 py-2 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        <span>Audit Trail & WORM Ledger</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Notifications Banner -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- TAB 1: CLAIMS DASHBOARD -->
+    <section id="section-dashboard" class="space-y-6">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
+          <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Total Claims Filed</p>
+          <p id="statTotalClaims" class="text-3xl font-extrabold text-white mt-1">0</p>
+          <p class="text-xs text-slate-500 mt-2">Active in lifecycle pipeline</p>
+        </div>
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
+          <p class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Under Review / Review</p>
+          <p id="statUnderReview" class="text-3xl font-extrabold text-amber-400 mt-1">0</p>
+          <p class="text-xs text-slate-500 mt-2">Document verification pending</p>
+        </div>
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
+          <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Approved & Settled</p>
+          <p id="statSettled" class="text-3xl font-extrabold text-emerald-400 mt-1">0</p>
+          <p class="text-xs text-slate-500 mt-2">WORM payout recorded</p>
+        </div>
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
+          <p class="text-xs uppercase tracking-wider text-indigo-400 font-semibold">Fraud Detection Mode</p>
+          <p id="statFraudMode" class="text-lg font-bold text-indigo-300 mt-1">Deterministic Fallback</p>
+          <p id="statFraudSubtext" class="text-xs text-slate-400 mt-2">Add GEMINI_API_KEY in .env for AI</p>
+        </div>
+      </div>
+
+      <!-- Claims Table Card -->
+      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl shadow-xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-700/70 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-white">Claims Ledger</h2>
+            <p class="text-xs text-slate-400">View and inspect claims transitioning through the ClaimFlow state machine</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <select id="filterStatus" onchange="renderClaimsTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-blue-500 outline-none">
+              <option value="ALL">All States</option>
+              <option value="FILED">FILED</option>
+              <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="SETTLED">SETTLED</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="REOPENED">REOPENED</option>
+            </select>
+            <button onclick="switchTab('intake')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow transition flex items-center space-x-1">
+              <span>+ New Claim</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700/50">
+              <tr>
+                <th class="px-6 py-3 font-semibold">Claim ID</th>
+                <th class="px-6 py-3 font-semibold">Policy #</th>
+                <th class="px-6 py-3 font-semibold">Type</th>
+                <th class="px-6 py-3 font-semibold">Claim Amount</th>
+                <th class="px-6 py-3 font-semibold">State</th>
+                <th class="px-6 py-3 font-semibold">Incident Date</th>
+                <th class="px-6 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="claimsTableBody" class="divide-y divide-slate-700/50 text-slate-300">
+              <tr>
+                <td colspan="7" class="px-6 py-8 text-center text-slate-500">Loading claims...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: FILE FNOL (INTAKE) -->
+    <section id="section-intake" class="hidden max-w-3xl mx-auto space-y-6">
+      <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div class="border-b border-slate-700/70 pb-4 mb-6">
+          <h2 class="text-xl font-bold text-white">First Notice of Loss (FNOL) Intake</h2>
+          <p class="text-sm text-slate-400">Submit a new insurance claim with automated policy active date validation & document checklist generation</p>
+        </div>
+
+        <form id="intakeForm" onsubmit="handleIntakeSubmit(event)" class="space-y-5">
+          <!-- Policy Selection -->
+          <div>
+            <label for="intakePolicySelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Select Policy *</label>
+            <select id="intakePolicySelect" onchange="onPolicySelected()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="">-- Choose registered policy --</option>
+            </select>
+            <div id="policyInfoBox" class="mt-2.5 p-3 rounded-xl bg-slate-900/70 border border-slate-700/50 text-xs text-slate-400 hidden"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Claim Type -->
+            <div>
+              <label for="intakeClaimType" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Line of Business / Claim Type *</label>
+              <select id="intakeClaimType" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="MOTOR">MOTOR (Vehicle / Collision)</option>
+                <option value="HEALTH">HEALTH (Hospitalization / Medical)</option>
+                <option value="LIFE">LIFE (Death Claim)</option>
+              </select>
+            </div>
+
+            <!-- Claim Amount -->
+            <div>
+              <label for="intakeClaimAmount" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Claim Amount ($) *</label>
+              <input type="number" id="intakeClaimAmount" step="0.01" min="1.00" value="2500.00" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+          </div>
+
+          <!-- Incident Date -->
+          <div>
+            <label for="intakeIncidentDate" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Incident Date *</label>
+            <input type="date" id="intakeIncidentDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
+            <p class="text-xs text-slate-500 mt-1">Must fall within policy active effective window</p>
+          </div>
+
+          <!-- Narrative -->
+          <div>
+            <label for="intakeDescription" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Incident Description *</label>
+            <textarea id="intakeDescription" rows="3" required placeholder="Describe what happened, location, circumstances, and severity..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">Vehicle fender damage occurred in parking lot collision on private premises.</textarea>
+          </div>
+
+          <!-- Supporting Documents Pre-upload -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Initial Supporting Documents</label>
+            <div id="initialDocsChecklist" class="space-y-2 text-xs">
+              <div class="flex items-center space-x-2 bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/60">
+                <input type="checkbox" id="attachDoc1" checked class="rounded border-slate-700 text-blue-600 focus:ring-0">
+                <span id="doc1Label">Primary FIR / Bill Report (receipt.pdf)</span>
+              </div>
+              <div class="flex items-center space-x-2 bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/60">
+                <input type="checkbox" id="attachDoc2" checked class="rounded border-slate-700 text-blue-600 focus:ring-0">
+                <span id="doc2Label">Secondary Estimate / Summary (invoice.pdf)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex justify-end space-x-3">
+            <button type="button" onclick="switchTab('dashboard')" class="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-800 transition">Cancel</button>
+            <button type="submit" id="btnSubmitFnol" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition flex items-center space-x-2">
+              <span>Submit FNOL Claim</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 3: AI FRAUD SCREENER -->
+    <section id="section-fraud" class="hidden space-y-6">
+      <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-700/70 pb-4 mb-6">
+          <div>
+            <div class="flex items-center space-x-3">
+              <h2 class="text-xl font-bold text-white">Intelligent Fraud Screening Engine</h2>
+              <span id="fraudEngineBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">AI with Deterministic Fallback</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Evaluates non-deterministic LLM reasoning or deterministic rules (FR-01 to FR-06) for anomaly detection</p>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <select id="fraudClaimSelect" onchange="runFraudEvaluation(false)" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-2 outline-none">
+              <option value="">-- Select claim to evaluate --</option>
+            </select>
+            <button onclick="runFraudEvaluation(true)" title="Force Deterministic Evaluation" class="px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition">
+              Run Deterministic Fallback
+            </button>
+            <button onclick="runFraudEvaluation(false)" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow transition">
+              Run AI Evaluation
+            </button>
+          </div>
+        </div>
+
+        <!-- Evaluation Results Display -->
+        <div id="fraudResultContainer" class="space-y-6">
+          <div class="p-8 text-center text-slate-500">
+            Select a claim above to run fraud screening and inspect risk analysis.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: DOCUMENT VERIFICATION -->
+    <section id="section-documents" class="hidden space-y-6">
+      <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-700/70 pb-4 mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-white">Document Verification Queue</h2>
+            <p class="text-xs text-slate-400 mt-1">Verify mandatory documents per Line of Business (Motor, Health, Life) to advance state to UNDER_REVIEW</p>
+          </div>
+          <div>
+            <select id="docClaimSelect" onchange="loadClaimDocuments()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-2 outline-none">
+              <option value="">-- Select Claim --</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="docVerificationContainer" class="space-y-4">
+          <div class="p-8 text-center text-slate-500">Select a claim to review its required document checklist.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ASSESSMENT & SETTLEMENT -->
+    <section id="section-assessment" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Assessment Calculation Panel -->
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5">
+          <div class="border-b border-slate-700/70 pb-4">
+            <h2 class="text-lg font-bold text-white">Financial Assessment Engine</h2>
+            <p class="text-xs text-slate-400">Fixed-point Banker's rounding math with non-negative payable amount guarantee</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Target Claim</label>
+            <select id="assessmentClaimSelect" onchange="loadAssessmentPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+              <option value="">-- Select claim for assessment --</option>
+            </select>
+          </div>
+
+          <div id="assessmentFormContent" class="space-y-4 hidden">
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-700/50 space-y-2 text-xs">
+              <div class="flex justify-between text-slate-400"><span>Policy Sum Insured:</span> <span id="asSumInsured" class="font-mono text-slate-200">$0.00</span></div>
+              <div class="flex justify-between text-slate-400"><span>Original Claim Amount:</span> <span id="asClaimAmount" class="font-mono text-slate-200">$0.00</span></div>
+              <div class="flex justify-between text-slate-400"><span>Policy Deductible:</span> <span id="asDeductible" class="font-mono text-slate-200">$0.00</span></div>
+              <div class="flex justify-between text-slate-400"><span>Policy Co-Pay:</span> <span id="asCopay" class="font-mono text-slate-200">0%</span></div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Additional Deductible ($)</label>
+              <input type="number" id="additionalDeductible" step="0.01" min="0" value="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Assessor Notes</label>
+              <input type="text" id="assessorNotes" placeholder="Approved within standard policy limits" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white outline-none">
+            </div>
+
+            <button onclick="submitAssessment()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-lg shadow-blue-500/20">
+              Calculate Assessment & Transition State
+            </button>
+          </div>
+        </div>
+
+        <!-- Settlement & Payout Panel -->
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-5">
+          <div class="border-b border-slate-700/70 pb-4">
+            <h2 class="text-lg font-bold text-white">Settlement & WORM Payout Ledger</h2>
+            <p class="text-xs text-slate-400">Disburses immutable payout records ensuring exact invariant match</p>
+          </div>
+
+          <div id="settlementActionBox" class="space-y-4">
+            <div class="p-8 text-center text-slate-500 text-xs">
+              Select or assess an approved claim to unlock settlement and payout ledger recording.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: AUDIT TRAIL -->
+    <section id="section-audit" class="hidden space-y-6">
+      <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-700/70 pb-4 mb-6">
+          <div>
+            <div class="flex items-center space-x-3">
+              <h2 class="text-xl font-bold text-white">Cryptographic Audit Trail (SHA-256 Chained)</h2>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">WORM Compliant</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Append-only immutable event ledger with automatic PII sanitization and cryptographic verification</p>
+          </div>
+          <div>
+            <select id="auditClaimSelect" onchange="loadAuditTrail()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-2 outline-none">
+              <option value="">-- Select Claim for Audit Log --</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="auditLogContainer" class="space-y-3">
+          <div class="p-8 text-center text-slate-500 text-xs">Select a claim above to verify its cryptographic SHA-256 hash-chained history.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    ClaimFlow Insurance Systems &copy; 2026. Architected via Claude Harness Engine &middot; Sprint Contract SC-2026-01
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

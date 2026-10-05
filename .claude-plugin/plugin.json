@@ -1,0 +1,44 @@
+{
+  "name": "claimflow",
+  "version": "1.0.0",
+  "description": "ClaimFlow Enterprise Insurance Claims Operations Platform (BC-AINE-005) with AI Decisioning, WORM Ledger, and Autonomous Evaluator Quality Gates",
+  "author": {
+    "name": "Horizon Insurance Claims Engineering"
+  },
+  "homepage": "https://github.com/cwijayasundara/claude_harness_eng_v1",
+  "domain": "insurance-claims-operations",
+  "commands": [
+    {
+      "name": "verify-ac",
+      "description": "Run Evaluator Agent against Sprint Acceptance Criteria and emit verification report",
+      "path": ".claude/commands/verify-ac.md"
+    },
+    {
+      "name": "assess-claim",
+      "description": "Run Assessment Agent on claim financial calculation invariants",
+      "path": ".claude/commands/assess-claim.md"
+    },
+    {
+      "name": "validate-state-machine",
+      "description": "Verify claim lifecycle transitions against state machine invariants",
+      "path": ".claude/commands/validate-state-machine.md"
+    },
+    {
+      "name": "audit-trace",
+      "description": "Audit cryptographic hash chaining and PII redaction on WORM ledger",
+      "path": ".claude/commands/audit-trace.md"
+    }
+  ],
+  "agents": [
+    ".claude/agents/claim-intake-agent.md",
+    ".claude/agents/fraud-screening-agent.md",
+    ".claude/agents/assessment-agent.md",
+    ".claude/agents/settlement-agent.md",
+    ".claude/agents/state-machine-validator-agent.md",
+    ".claude/agents/audit-tracer-agent.md",
+    ".claude/agents/archtest-author-agent.md",
+    ".claude/agents/evaluator.md",
+    ".claude/agents/planner.md",
+    ".claude/agents/generator.md"
+  ]
+}
